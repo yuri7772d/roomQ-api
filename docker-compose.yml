@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql2
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234        # รหัสผ่าน root
+      MYSQL_DATABASE: roomq               # ชื่อ database เริ่มต้น
+      MYSQL_USER: my_sql                      # ผู้ใช้ใหม่
+      MYSQL_PASSWORD: 1234               # รหัสผ่านของผู้ใช้ใหม่
+    ports:
+      - "3306:3307"                             # พอร์ต MySQL
+    volumes:
+      - ./mysql_data:/var/lib/mysql             # เก็บข้อมูลไว้ถาวรในโฟลเดอร์ host
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # (ถ้ามี) ไฟล์ SQL สำหรับตั้งค่าเริ่มต้น
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  mysql_data:
