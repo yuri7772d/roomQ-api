@@ -4,7 +4,7 @@ dotenv.config();
 
 module.exports =  {
   jwt:getJwtEnv(),
-  admin:getAdminEnv(),
+  root:getRootEnv(),
   database:getDatabaseEnv(),
   server:getServerEnv(),
 };
@@ -24,13 +24,13 @@ function getJwtEnv() {
   };
 }
 
-function getAdminEnv() {
+function getRootEnv() {
 
-    const username = process.env.ADMIN_USERNAME;
+    const username = process.env.ROOT_USERNAME;
   if (!username) {
     throw new error("ADMIN_USERNAME not found");
   }
-    const password = process.env.ADMIN_PASSWORD;
+    const password = process.env.ROOT_PASSWORD;
   if (!password) {
     throw new error("ADMIN_PASSWORD not found");
   }
