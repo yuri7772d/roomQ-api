@@ -7,7 +7,7 @@ exports.listing = async () => {
 
 exports.create = async (name) => {
   const [rows] = await db.execute(
-    "INSERT INTO authen (name) VALUES (?,);",
+    "INSERT INTO room (name) VALUES (?);",
     [name]
   );
   return rows;

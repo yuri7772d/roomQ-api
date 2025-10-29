@@ -15,7 +15,6 @@ CREATE TABLE room (
 
 CREATE TABLE queue (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  title VARCHAR(200) NOT NULL,
   reason VARCHAR(200) NOT NULL,
   room_id INT NOT NULL,
   authen_id INT NOT NULL,

@@ -45,7 +45,6 @@ exports.login = async (username, password) => {
     };
   } else {
     const authen = await repo.getbyUsername(username);
-    console.log(authen);
     if (authen.length == 0) {
       throw new Error(errExep.USERNAME_NOT_FOUND);
     }

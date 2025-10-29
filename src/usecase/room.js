@@ -23,6 +23,6 @@ exports.listing = async () => {
 };
 
 exports.delete = async (roomID) => {
-  if (await repo.delete(authenID)) return;
+  if (await repo.delete(roomID)) return;
   throw new Error(errExep.DElETE_FAILED);
 };

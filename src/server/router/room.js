@@ -4,6 +4,7 @@ const roomUsecase = require("../../usecase/room");
 const validatorError = require("../middlewere/validator");
 const errExep = require("../../err.exeption");
 const author = require("../middlewere/author");
+const { body } = require("express-validator");
 
 router.post(
   "/",
