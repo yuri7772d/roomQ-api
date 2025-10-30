@@ -61,11 +61,22 @@ function getDatabaseEnv() {
     throw new error("👁‍🗨 MYSQL_DATABASE not found");
   }
 
+    const portEnv = process.env.MYSQL_PORT;
+  if (!portEnv) {
+    throw new error("MYSQL_PORT not found");
+  }
+  const port = Number(portEnv)
+
+   if (!Number.isInteger(port) || port < 1 || port > 65535) {
+      throw new Error(`❌ Invalid MYSQL_PORT value: "${portEnv}" — must be a number between 1 and 65535`)
+   }
+
   return {
     host:host,
     username:username,
     password:password,
     database:database,
+    port:port
   }
 }
 

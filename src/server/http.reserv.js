@@ -4,6 +4,7 @@ const { server } = require("../config.load");
 const healthCheck = require("./default.router");
 const cookieParser = require("cookie-parser");
 const authenRouter = require("./router/authen");
+const queueRouter = require("./router/queue");
 const roomRouter = require("./router/room");
 
 exports.start = () => {
@@ -12,6 +13,7 @@ exports.start = () => {
 
   app.get("/", healthCheck);
   app.use("/authen", authenRouter);
+  app.use("/queue", queueRouter);
   app.use("/room", roomRouter);
   app.listen(server.port, () => {
     console.log(`Example app listening on port ${server.port}`);

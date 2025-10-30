@@ -1,23 +1,23 @@
 const db = require("./connector");
 
 exports.listing = async (year, month, roomID, statusIDs) => {
-  const placeholders = statusIDs.map(() => "?").join(",");
   const [rows] = await db.execute(
     `
     SELECT id, at, status_id FROM queue
     WHERE MONTH(at) = ?
       AND YEAR(at) = ?
       AND room_id = ?
-      AND status_id IN (${placeholders})
+      AND status_id IN (${statusIDs})
       ORDER BY at ASC;
   `,
-    [month, year, roomID, ...statusIDs]
+    [month, year, roomID]
   );
   return rows;
 };
 
 exports.getbyDateAndRoomID = async (date, roomID, statusIDs) => {
-  const placeholders = statusIDs.map(() => "?").join(",");
+  console.log(date.setHours(0, 0, 0, 0));
+  
   const [rows] = await db.execute(
     `
  SELECT 
@@ -26,25 +26,24 @@ exports.getbyDateAndRoomID = async (date, roomID, statusIDs) => {
     q.reason,
     q.status_id
   FROM queue q
-  JOIN authen a ON q.user_id = a.id
-  WHERE DATE(q.at) = ?
+  JOIN authen a ON q.authen_id = a.id
+  WHERE q.at = ?
   AND q.room_id = ?
-  AND q.status_id IN (${placeholders})
+  AND q.status_id IN (${statusIDs})
   ORDER BY q.at ASC;`,
-    [date, roomID, ...statusIDs]
+    [date, roomID]
   );
 
   return rows;
 };
 
 exports.getbyID = async (queueID, statusIDs) => {
-  const placeholders = statusIDs.map(() => "?").join(",");
   const [rows] = await db.execute(
     `
     SELECT id,reason FROM queue 
     WHERE id = ?
-    AND status_id IN (${placeholders});`,
-    [date, queueID, ...statusIDs]
+    AND status_id IN (${statusIDs});`,
+    [queueID]
   );
   return rows;
 };

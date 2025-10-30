@@ -14,7 +14,7 @@ exports.booking = async (reason, roomID, authenID, date) => {
   }
 
   // สมมุติเรียก repo เพื่อบันทึก
-  const result = await repo.create(reason, roomID, authenID, 0, date);
+  const result = await repo.create(reason, roomID, authenID, 1, date);
 
   return {
     id: result.insertId,
@@ -25,24 +25,73 @@ exports.booking = async (reason, roomID, authenID, date) => {
 };
 
 exports.listingCurrent = async (year, month, roomID) => {
-  return await repo.listing(year, month, roomID, [1]);
+
+  const queues = await repo.listing(year, month, roomID, [1]);
+  console.log(queues);
+  let preQueue = queues[0];
+  let result = [];
+  let SomeDate = [];
+
+  for (const queue of queues) {
+    if (preQueue.at.getTime() !== queue.at.getTime()) {
+      result.push(SomeDate[0]);
+      SomeDate = [];
+      preQueue = queue
+    }
+    SomeDate.push(queue)
+
+  }
+  result.push(SomeDate[0]);
+
+  return result
 };
 exports.listingAll = async (year, month, roomID) => {
-  return await repo.listing(year, month, roomID, [0, 1]);
+  const queues = await repo.listing(year, month, roomID, [0, 1]);
+  console.log(queues);
+  let preQueue = queues[0];
+  let result = [];
+  let SomeDate = [];
+  let cutedDates = [];
+  for (const queue of queues) {
+    if (preQueue.at.getTime() !== queue.at.getTime()) {
+      cutedDates.push(SomeDate);
+      SomeDate = [];
+      preQueue = queue
+    }
+    SomeDate.push(queue)
+
+  }
+  cutedDates.push(SomeDate);
+
+  for (const dates of cutedDates) {
+    let isPush = false;
+    for (const q of dates) {
+      if (q.status_id == 1 && !isPush) {
+        result.push({ date: q.at, statusID: 1 })
+        isPush = true
+      }
+    }
+    if (!isPush) result.push({ date: dates[0].at, statusID: 0 });
+  }
+  return result
+
 };
 
 exports.getCurrentByID = async (queueID) => {
+
   return await repo.getbyID(queueID, [1]);
 };
-
+//status 0 = pading 1 = aproved 
 exports.getAllByDate = async (date, roomID) => {
+
   return await repo.getbyDateAndRoomID(date, roomID, [0, 1]);
+
 };
 
 exports.approve = async (queueID, date, roomID) => {
   const queues = await repo.getbyDateAndRoomID(date, roomID, [0, 1]);
   if (queues.length == 0) {
-    throw new Error("");
+    throw new Error(errExep.NOT_DATE);
   }
   let isHave = false;
   for (const queue of queues) {
@@ -52,14 +101,14 @@ exports.approve = async (queueID, date, roomID) => {
     }
   }
   if (!isHave) {
-    throw new Error("");
+    throw new Error(errExep.Q_NOT_FOUND);
   }
   for (const queue of queues) {
     if (queue.id == queueID) {
-      await repo.upDateStatus(queueID,1)
+      await repo.upDateStatus(queueID, 1)
       continue;
     }
-    await repo.upDateStatus(queue.id,2)
+    await repo.upDateStatus(queue.id, 2)
   }
   return;
 };
