@@ -33,6 +33,7 @@ exports.getbyDateAndRoomID = async (date, roomID, statusIDs) => {
   ORDER BY q.at ASC;`,
     [date, roomID, ...statusIDs]
   );
+
   return rows;
 };
 
