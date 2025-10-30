@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "dev": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
@@ -14,7 +15,8 @@
     "express": "^5.1.0",
     "express-validator": "^7.3.0",
     "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.15.3"
+    "mysql2": "^3.15.3",
+    "nodemon": "^3.1.10"
   },
   "devDependencies": {
     "jest": "^30.2.0"

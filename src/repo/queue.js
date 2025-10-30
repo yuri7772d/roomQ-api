@@ -8,7 +8,8 @@ exports.listing = async (year, month, roomID, statusIDs) => {
     WHERE MONTH(at) = ?
       AND YEAR(at) = ?
       AND room_id = ?
-      AND status_id IN (${placeholders});
+      AND status_id IN (${placeholders})
+      ORDER BY at ASC;
   `,
     [month, year, roomID, ...statusIDs]
   );
@@ -19,11 +20,18 @@ exports.getbyDateAndRoomID = async (date, roomID, statusIDs) => {
   const placeholders = statusIDs.map(() => "?").join(",");
   const [rows] = await db.execute(
     `
-    SELECT id,reason,status_id FROM queue 
-    WHERE DATE(at) = ?
-    AND room_id = ? 
-    AND status_id IN (${placeholders});`,
-    [date, roomID, statusIDs]
+ SELECT 
+    q.id,
+    a.username,
+    q.reason,
+    q.status_id
+  FROM queue q
+  JOIN authen a ON q.user_id = a.id
+  WHERE DATE(q.at) = ?
+  AND q.room_id = ?
+  AND q.status_id IN (${placeholders})
+  ORDER BY q.at ASC;`,
+    [date, roomID, ...statusIDs]
   );
   return rows;
 };
@@ -35,7 +43,7 @@ exports.getbyID = async (queueID, statusIDs) => {
     SELECT id,reason FROM queue 
     WHERE id = ?
     AND status_id IN (${placeholders});`,
-    [date, queueID, statusIDs]
+    [date, queueID, ...statusIDs]
   );
   return rows;
 };
@@ -55,7 +63,7 @@ exports.delete = async (queueID) => {
   return result.affectedRows > 0;
 };
 
-exports.upDateStatus = async ( queueId,statusID) => {
+exports.upDateStatus = async (queueId, statusID) => {
   const [rows] = await db.execute(
     "UPDATE queue SET status_id = ? WHERE id = ?;",
     [statusID, queueId]

@@ -7,7 +7,7 @@ const errExep = require("../../err.exeption");
 const author = require("../middlewere/author");
 
 router.post(
-  "/create",
+  "/",
   [
     body("username")
       .isString()
@@ -102,7 +102,7 @@ router.get("/refreshToken",
   }
 });
 
-router.get("/listing",
+router.get("/",
     author([0]),
     async (req, res) => {
   try {
