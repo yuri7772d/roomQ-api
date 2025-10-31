@@ -22,10 +22,11 @@ exports.getbyDateAndRoomID = async (date, roomID, statusIDs) => {
     q.id,
     a.username,
     q.reason,
-    q.status_id
+    q.status_id,
+    q.at
   FROM queue q
   JOIN authen a ON q.authen_id = a.id
-  WHERE DATE(q.at) = DATE(CONVERT_TZ(?, '+07:00', '+00:00'))
+  WHERE DATE(q.at) =?
   AND q.room_id = ?
   AND q.status_id IN (${statusIDs})
   ORDER BY q.at ASC;`,
@@ -38,9 +39,16 @@ exports.getbyDateAndRoomID = async (date, roomID, statusIDs) => {
 exports.getbyID = async (queueID, statusIDs) => {
   const [rows] = await db.execute(
     `
-    SELECT id,reason FROM queue 
-    WHERE id = ?
-    AND status_id IN (${statusIDs});`,
+    SELECT 
+    q.id,
+    a.username,
+    q.reason,
+    q.status_id,
+    q.at
+    FROM queue q
+    JOIN authen a ON q.authen_id = a.id
+    WHERE q.id =?
+    AND q.status_id IN (${statusIDs});`,
     [queueID]
   );
   return rows;
