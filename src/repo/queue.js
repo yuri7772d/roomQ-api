@@ -16,8 +16,6 @@ exports.listing = async (year, month, roomID, statusIDs) => {
 };
 
 exports.getbyDateAndRoomID = async (date, roomID, statusIDs) => {
-  console.log(date.setHours(0, 0, 0, 0));
-  
   const [rows] = await db.execute(
     `
  SELECT 
@@ -27,7 +25,7 @@ exports.getbyDateAndRoomID = async (date, roomID, statusIDs) => {
     q.status_id
   FROM queue q
   JOIN authen a ON q.authen_id = a.id
-  WHERE q.at = ?
+  WHERE DATE(q.at) = DATE(CONVERT_TZ(?, '+07:00', '+00:00'))
   AND q.room_id = ?
   AND q.status_id IN (${statusIDs})
   ORDER BY q.at ASC;`,

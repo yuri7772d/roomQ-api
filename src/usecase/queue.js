@@ -7,14 +7,14 @@ exports.booking = async (reason, roomID, authenID, date) => {
   // สร้างวันที่จาก object at
   const today = new Date();
   today.setHours(0, 0, 0, 0); // ตัดเวลาออก เหลือแค่วันที่
-  date.setHours(0, 0, 0, 0);
+  //date.setHours(0, 0, 0, 0);
   // ตรวจว่าจองวันไม่ก่อนวันนี้
   if (date < today) {
     throw new Error(errExep.CANNOT_BOOKING_DAY);
   }
 
   // สมมุติเรียก repo เพื่อบันทึก
-  const result = await repo.create(reason, roomID, authenID, 1, date);
+  const result = await repo.create(reason, roomID, authenID, 0, date);
 
   return {
     id: result.insertId,
@@ -46,8 +46,8 @@ exports.listingCurrent = async (year, month, roomID) => {
   return result
 };
 exports.listingAll = async (year, month, roomID) => {
+
   const queues = await repo.listing(year, month, roomID, [0, 1]);
-  console.log(queues);
   let preQueue = queues[0];
   let result = [];
   let SomeDate = [];
@@ -65,13 +65,14 @@ exports.listingAll = async (year, month, roomID) => {
 
   for (const dates of cutedDates) {
     let isPush = false;
-    for (const q of dates) {
+    let q ;
+    for ( q of dates) {
       if (q.status_id == 1 && !isPush) {
-        result.push({ date: q.at, statusID: 1 })
+        result.push({id:q.id, date: q.at, statusID: 1 })
         isPush = true
       }
     }
-    if (!isPush) result.push({ date: dates[0].at, statusID: 0 });
+    if (!isPush) result.push({id:q.id, date: dates[0].at, statusID: 0 });
   }
   return result
 
@@ -83,12 +84,13 @@ exports.getCurrentByID = async (queueID) => {
 };
 //status 0 = pading 1 = aproved 
 exports.getAllByDate = async (date, roomID) => {
-
+  date.setHours(0, 0, 0, 0);
   return await repo.getbyDateAndRoomID(date, roomID, [0, 1]);
 
 };
 
 exports.approve = async (queueID, date, roomID) => {
+  date.setHours(0, 0, 0, 0);
   const queues = await repo.getbyDateAndRoomID(date, roomID, [0, 1]);
   if (queues.length == 0) {
     throw new Error(errExep.NOT_DATE);

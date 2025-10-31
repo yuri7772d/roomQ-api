@@ -1,47 +1,116 @@
-const queueService = require('../src/usecase/queue'); // ปรับ path ตามจริง
-const repo = require('../src/repo/queue');
+const queueUsecase = require("../src/usecase/queue");
+const repo = require("../src/repo/queue");
+const errExep = require("../src/err.exeption");
 
-jest.mock('../src/repo/queue'); // mock repo ทั้งหมด
+// Mock repo functions ทั้งหมด
+jest.mock("../src/repo/queue");
 
-describe('Queue Service', () => {
+describe("Queue Usecase Unit Tests", () => {
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('booking', () => {
-    let date = new Date()
-    date.setFullYear(2025, 12 - 1, 7 + 1)
-    it('approve', async () => {
-      const mockResult = [
-        { id: 4, at: date, status_id: 0 },
-        { id: 5, at: date, status_id: 0 },
-        { id: 6, at: date, status_id: 0 },
-        { id: 7, at: date, status_id: 0 },
-        { id: 8, at: date, status_id: 0 }];
-      repo.getbyDateAndRoomID.mockResolvedValue(mockResult);
+  // ------------------------
+  // booking()
+  // ------------------------
+  describe("booking()", () => {
+    it("ควรโยน error ถ้าจองวันก่อนวันนี้", async () => {
+      const pastDate = new Date();
+      pastDate.setDate(pastDate.getDate() - 1);
 
-      const bookingDate = new Date();
-      bookingDate.setDate(bookingDate.getDate() + 1); // วันพรุ่งนี้
-      const dateObj = {
-        year: bookingDate.getFullYear(),
-        month: bookingDate.getMonth() + 1,
-        day: bookingDate.getDate()
-      };
-
-      const result = await queueService.booking(
-        'Test reason',
-        1, // roomID
-        42, // authenID
-        dateObj
-      );
-
-      expect(result).toEqual({
-        id: 123,
-        reason: 'Test reason',
-        authenID: 42,
-        at: new Date(dateObj.year, dateObj.month - 1, dateObj.day),
-      });
-
+      await expect(
+        queueUsecase.booking("test", 1, 1, pastDate)
+      ).rejects.toThrow(errExep.CANNOT_BOOKING_DAY);
     });
-  })
+
+    it("ควรสร้างการจองสำเร็จ", async () => {
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 1);
+
+      repo.create.mockResolvedValue({ insertId: 100 });
+
+      const result = await queueUsecase.booking("Meeting", 2, 10, futureDate);
+
+      expect(repo.create).toHaveBeenCalledWith("Meeting", 2, 10, 1, futureDate);
+      expect(result).toEqual({
+        id: 100,
+        reason: "Meeting",
+        authenID: 10,
+        at: futureDate,
+      });
+    });
+  });
+
+  // ------------------------
+  // listingAll()
+  // ------------------------
+  describe("listingAll()", () => {
+    it("ควรรวมสถานะถูกต้องจากหลายวัน", async () => {
+      const date1 = new Date("2025-10-01");
+      const date2 = new Date("2025-10-02");
+
+      repo.listing.mockResolvedValue([
+        { at: date1, status_id: 1 },
+        { at: date1, status_id: 0 },
+        { at: date2, status_id: 0 },
+      ]);
+
+      const result = await queueUsecase.listingAll(2025, 10, 1);
+
+      expect(result).toEqual([
+        { date: date1, statusID: 1 },
+        { date: date2, statusID: 0 },
+      ]);
+      expect(repo.listing).toHaveBeenCalledWith(2025, 10, 1, [0, 1]);
+    });
+  });
+
+  // ------------------------
+  // approve()
+  // ------------------------
+  describe("approve()", () => {
+    it("ควรโยน error ถ้าไม่มี queue ในวันนั้น", async () => {
+      repo.getbyDateAndRoomID.mockResolvedValue([]);
+
+      await expect(queueUsecase.approve(1, new Date(), 1))
+        .rejects.toThrow(errExep.NOT_DATE);
+    });
+
+    it("ควรโยน error ถ้าไม่พบ queueID ที่ต้องการอนุมัติ", async () => {
+      const date = new Date();
+      repo.getbyDateAndRoomID.mockResolvedValue([{ id: 2 }]);
+
+      await expect(queueUsecase.approve(1, date, 1))
+        .rejects.toThrow(errExep.Q_NOT_FOUND);
+    });
+
+    it("ควรอัปเดตสถานะถูกต้องเมื่ออนุมัติสำเร็จ", async () => {
+      const date = new Date();
+      const queues = [{ id: 1 }, { id: 2 }];
+      repo.getbyDateAndRoomID.mockResolvedValue(queues);
+      repo.upDateStatus.mockResolvedValue(true);
+
+      await queueUsecase.approve(1, date, 1);
+
+      expect(repo.upDateStatus).toHaveBeenCalledWith(1, 1); // อนุมัติ
+      expect(repo.upDateStatus).toHaveBeenCalledWith(2, 2); // ปฏิเสธ
+    });
+  });
+
+  // ------------------------
+  // delete()
+  // ------------------------
+  describe("delete()", () => {
+    it("ควรลบสำเร็จโดยไม่โยน error", async () => {
+      repo.delete.mockResolvedValue(true);
+      await expect(queueUsecase.delete(1)).resolves.not.toThrow();
+    });
+
+    it("ควรโยน error ถ้าลบไม่สำเร็จ", async () => {
+      repo.delete.mockResolvedValue(false);
+      await expect(queueUsecase.delete(1))
+        .rejects.toThrow(errExep.DElETE_FAILED);
+    });
+  });
 });
