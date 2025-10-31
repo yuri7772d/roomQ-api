@@ -32,7 +32,7 @@ describe("Queue Usecase Unit Tests", () => {
 
       const result = await queueUsecase.booking("Meeting", 2, 10, futureDate);
 
-      expect(repo.create).toHaveBeenCalledWith("Meeting", 2, 10, 1, futureDate);
+      expect(repo.create).toHaveBeenCalledWith("Meeting", 2, 10, 0, futureDate);
       expect(result).toEqual({
         id: 100,
         reason: "Meeting",
