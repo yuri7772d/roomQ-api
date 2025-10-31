@@ -7,7 +7,7 @@ exports.booking = async (reason, roomID, authenID, date) => {
   // สร้างวันที่จาก object at
   const today = new Date();
   today.setHours(0, 0, 0, 0); // ตัดเวลาออก เหลือแค่วันที่
-  //date.setHours(0, 0, 0, 0);
+ // date.setHours(0, 0, 0, 0);
   // ตรวจว่าจองวันไม่ก่อนวันนี้
   if (date < today) {
     throw new Error(errExep.CANNOT_BOOKING_DAY);
@@ -84,13 +84,10 @@ exports.getCurrentByID = async (queueID) => {
 };
 //status 0 = pading 1 = aproved 
 exports.getAllByDate = async (date, roomID) => {
-  date.setHours(0, 0, 0, 0);
   return await repo.getbyDateAndRoomID(date, roomID, [0, 1]);
-
 };
 
 exports.approve = async (queueID, date, roomID) => {
-  date.setHours(0, 0, 0, 0);
   const queues = await repo.getbyDateAndRoomID(date, roomID, [0, 1]);
   if (queues.length == 0) {
     throw new Error(errExep.NOT_DATE);
