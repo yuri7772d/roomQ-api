@@ -14,6 +14,7 @@ module.exports = (req, res, next) => {
     if (date) {
     date.setHours(0, 0, 0, 0);
     req.date = date
+    console.log(date)
     }
 
     next();

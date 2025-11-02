@@ -14,8 +14,5 @@ module.exports = {
   YOU_NOT_ADMIN: "👨‍🎓 you not admin!",
   DElETE_FAILED: "delet failed!",
   ROLE_INVALID: "🤱 role invalid!",
-  Q_INVALID: "queue invalid!",
-  NOT_DATE:"date not found!",
-  Q_NOT_FOUND:"queue not found!",
-  DATE_INVALID:"date invalid"
+  CANNOT_BOOKING_DAY:"❌ ไม่สามารถจองก่อนวันปัจจุบันได้"
 };

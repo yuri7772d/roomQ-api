@@ -88,6 +88,17 @@ exports.refreshToken = async (refreshToken) => {
   };
 };
 
+exports.getPayloadByToken = async (token) => {
+  const decoded = jwt.verify(token, jwtConf.secret);
+  const payload = {
+    id: decoded.id,
+    username: decoded.username,
+    role: decoded.role,
+  };
+
+  return payload
+};
+
 exports.listing = async () => {
   return await repo.listing() ;
 };

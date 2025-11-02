@@ -1,4 +1,3 @@
-version: '3.9'
 
 services:
   mysql:
@@ -14,11 +13,22 @@ services:
       - "3333:3306"                             # พอร์ต MySQL
     volumes:
       - ./mysql_data:/var/lib/mysql             # เก็บข้อมูลไว้ถาวรในโฟลเดอร์ host
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # (ถ้ามี) ไฟล์ SQL สำหรับตั้งค่าเริ่มต้น
     command:
-      --default-authentication-plugin=mysql_native_password
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_unicode_ci
+
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin2
+    restart: always
+    ports:
+      - "8080:80"                      # เปิดหน้าเว็บ phpMyAdmin ผ่าน http://localhost:8080
+    environment:
+      PMA_HOST: mysql                  # ชื่อ service ของ MySQL (ต้องตรงกับด้านบน)
+      PMA_USER: root
+      PMA_PASSWORD: 1234
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      - mysql    
 
 volumes:
   mysql_data:

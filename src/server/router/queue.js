@@ -24,10 +24,9 @@ router.post(
     body("date")
       .isISO8601()
       .withMessage(errExep.DATE_INVALID)
-      .toDate()
   ],
   
- // toDate,
+  toDate,
   author([1, 2]),
   async (req, res) => {
     try {
@@ -59,7 +58,7 @@ router.put(
     body("date")
       .isISO8601()
       .withMessage(errExep.DATE_INVALID)
-    //  .toDate()
+
   ],
   todate,
   validatorError,

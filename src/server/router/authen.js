@@ -77,6 +77,12 @@ router.post(
   }
 );
 
+router.post("/logout", (req, res) => {
+  res.clearCookie("token");
+  res.clearCookie("refreshToken");
+  res.status(200).json({ message: "Logged out" });
+});
+
 router.get("/refreshToken",
     async (req, res) => {
   try {
@@ -86,7 +92,8 @@ router.get("/refreshToken",
 
     res.cookie("token", result.token, {
       httpOnly: true, // ป้องกัน client script อ่าน cookie
-      secure: false, // ใช้ true ถ้า https
+      secure: false,
+       // ใช้ true ถ้า https
       maxAge: 24 * 60 * 60 * 1000, // 1 วัน
     });
 
@@ -97,6 +104,21 @@ router.get("/refreshToken",
     });
 
     res.status(200).json(result.payload);
+  } catch (error) {
+    res.status(400).json({ mesage: error.message });
+  }
+});
+
+router.get("/token",
+    async (req, res) => {
+  try {
+  
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ message: "No token" });
+   // console.log(token);
+    
+    const result = await authenUsecase.getPayloadByToken(token);
+    res.status(200).json(result);
   } catch (error) {
     res.status(400).json({ mesage: error.message });
   }
