@@ -31,7 +31,7 @@ router.post(
   async (req, res) => {
     try {
       const { reason, roomID} = req.body;
-      const { date } = req.body;
+      const { date } = req;
 
       const authenID = req.payload.id
       const result = await queueUsecase.booking(reason, roomID, authenID, date);

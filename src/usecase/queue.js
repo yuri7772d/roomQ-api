@@ -27,6 +27,7 @@ exports.booking = async (reason, roomID, authenID, date) => {
 exports.listingCurrent = async (year, month, roomID) => {
 
   const queues = await repo.listing(year, month, roomID, [1]);
+  if (queues.length == 0) return [];
   console.log(queues);
   let preQueue = queues[0];
   let result = [];
@@ -48,6 +49,7 @@ exports.listingCurrent = async (year, month, roomID) => {
 exports.listingAll = async (year, month, roomID) => {
 
   const queues = await repo.listing(year, month, roomID, [0, 1]);
+  if (queues.length == 0) return [];
   let preQueue = queues[0];
   let result = [];
   let SomeDate = [];
@@ -68,7 +70,7 @@ exports.listingAll = async (year, month, roomID) => {
     let q ;
     for ( q of dates) {
       if (q.status_id == 1 && !isPush) {
-        result.push({id:q.id, date: q.at, statusID: 1 })
+        result.push({id: q.id, date: q.at, statusID: 1 })
         isPush = true
       }
     }
